@@ -4,6 +4,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.routes";
 import testRoutes from "./routes/test.routes";
 import adminRoutes from "./routes/admin.routes";
+import leadRoutes from "./routes/lead.routes";
 
 const app = express();
 
@@ -17,5 +18,6 @@ app.get("/", (_, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/test", testRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/leads", leadRoutes);
 
 export default app;
