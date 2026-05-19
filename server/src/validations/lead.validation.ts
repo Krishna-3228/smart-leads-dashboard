@@ -7,11 +7,18 @@ export const createLeadSchema = z.object({
 
   email: z.email(),
 
-  source: z.enum([
-    "website",
-    "instagram",
-    "referral",
-  ]),
+  source: z
+  .string()
+  .transform((val) =>
+    val.toLowerCase()
+  )
+  .pipe(
+    z.enum([
+      "website",
+      "instagram",
+      "referral",
+    ])
+  ),
 });
 
 export const updateLeadSchema = z.object({
@@ -20,19 +27,31 @@ export const updateLeadSchema = z.object({
   email: z.email().optional(),
 
   status: z
-    .enum([
+  .string()
+  .transform((val) =>
+    val.toLowerCase()
+  )
+  .pipe(
+    z.enum([
       "new",
       "contacted",
       "qualified",
       "lost",
     ])
-    .optional(),
+  )
+  .optional(),
 
   source: z
-    .enum([
+  .string()
+  .transform((val) =>
+    val.toLowerCase()
+  )
+  .pipe(
+    z.enum([
       "website",
       "instagram",
       "referral",
     ])
-    .optional(),
+  )
+  .optional(),
 });
