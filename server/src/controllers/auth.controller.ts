@@ -8,7 +8,7 @@ export const registerUser = async (
   res: Response
 ) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password } = req.body;
 
     const existingUser = await User.findOne({ email });
 
@@ -24,7 +24,7 @@ export const registerUser = async (
       name,
       email,
       password: hashedPassword,
-      role,
+      role: "sales",
     });
 
     res.status(201).json({
