@@ -1,5 +1,11 @@
 const RegisterPage = () => {
-  return <div>RegisterPage</div>;
+  return (
+    <div>
+      <h1 className="text-3xl font-bold">
+        Register
+      </h1>
+    </div>
+  );
 };
 
 export default RegisterPage;
