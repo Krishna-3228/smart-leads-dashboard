@@ -25,6 +25,19 @@ const LeadsPage = () => {
   const [source, setSource] = useState("");
   const [sort, setSort] = useState("latest");
 
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const [page, setPage] = useState(1);
+
+  const [totalPages, setTotalPages] = useState(1);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search]);
 
   useEffect(() => {
     const fetchLeads = async () => {
@@ -32,13 +45,15 @@ const LeadsPage = () => {
         setLoading(true);
 
         const data = await getLeads({
-          search,
+          search: debouncedSearch,
           status,
           source,
           sort,
+          page,
         });
 
         setLeads(data.leads);
+        setTotalPages(data.totalPages);
       } catch (error: any) {
         setError(
           error.response?.data?.message ||
@@ -50,7 +65,18 @@ const LeadsPage = () => {
     };
 
     fetchLeads();
-  }, [search, status, source, sort]);
+  }, [debouncedSearch, status, source, sort, page]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [
+    debouncedSearch,
+    status,
+    source,
+    sort,
+  ]);
+
+
 
 
   return (
@@ -197,6 +223,38 @@ const LeadsPage = () => {
           </tbody>
         )}
       </table>
+      <div className="flex justify-between items-center mt-6">
+        <button
+          onClick={() =>
+            setPage((prev) =>
+              Math.max(prev - 1, 1)
+            )
+          }
+          disabled={page === 1}
+          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+        >
+          Previous
+        </button>
+
+        <p className="text-sm text-gray-600">
+          Page {page} of {totalPages}
+        </p>
+
+        <button
+          onClick={() =>
+            setPage((prev) =>
+              Math.min(
+                prev + 1,
+                totalPages
+              )
+            )
+          }
+          disabled={page === totalPages}
+          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };
