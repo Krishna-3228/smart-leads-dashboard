@@ -1,14 +1,11 @@
 import mongoose from "mongoose";
+import asyncHandler from "express-async-handler";
 import { Request, Response } from "express";
 import Lead from "../models/lead.model";
 import { AuthRequest } from "../types/auth.types";
 
-
-export const createLead = async (
-    req: AuthRequest,
-    res: Response
-) => {
-    try {
+export const createLead = asyncHandler(
+    async (req: AuthRequest, res: Response) => {
         const { name, email, source } = req.body;
 
         const lead = await Lead.create({
@@ -23,19 +20,11 @@ export const createLead = async (
             message: "Lead created successfully",
             lead,
         });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            message: "Server error",
-        });
     }
-};
+);
 
-export const getLeads = async (
-    req: AuthRequest,
-    res: Response
-) => {
-    try {
+export const getLeads = asyncHandler(
+    async (req: AuthRequest, res: Response) => {
         const {
             status,
             source,
@@ -47,173 +36,101 @@ export const getLeads = async (
         // Build filter object
         const filter: any = {};
 
-        // Filter by status
-        if (status) {
-            filter.status = status;
-        }
-
-        // Filter by source
-        if (source) {
-            filter.source = source;
-        }
+        if (status) filter.status = status;
+        if (source) filter.source = source;
+        
 
         // Search by name or email
-        if (search) {
+        if ( typeof search === "string" && search.trim()) {
             filter.$or = [
-                {
-                    name: {
-                        $regex: search,
-                        $options: "i",
-                    },
-                },
-
-                {
-                    email: {
-                        $regex: search,
-                        $options: "i",
-                    },
-                },
+                { name: { $regex: search, $options: "i" } },
+                { email: { $regex: search, $options: "i" } },
             ];
         }
 
         // Pagination
-        const limit = req.query.limit
-            ? parseInt(
-                req.query.limit as string
-            )
-            : 10;
-
-        const pageNumber = Math.max(
-            1,
-            parseInt(page as string) || 1
+        const limit = Math.min(
+            100,
+            req.query.limit
+                ? parseInt(
+                    req.query.limit as string
+                )
+                : 10
         );
 
-        const skip =
-            (pageNumber - 1) * limit;
+        const pageNumber = Math.max(1, parseInt(page as string) || 1);
+        const skip = (pageNumber - 1) * limit;
 
         // Sorting
         let sortOption = {};
-
-        if (sort === "latest") {
-            sortOption = {
-                createdAt: -1,
-            };
-        }
-
-        else if (sort === "oldest") {
-            sortOption = {
-                createdAt: 1,
-            };
-        }
+        if (sort === "latest") sortOption = { createdAt: -1 };
+        else if (sort === "oldest") sortOption = { createdAt: 1 };
 
         // Fetch leads
         const leads = await Lead.find(filter)
             .sort(sortOption)
             .skip(skip)
             .limit(limit)
-            .populate(
-                "createdBy",
-                "name email role"
-            );
+            .populate("createdBy", "name email role");
 
         // Total count for pagination
-        const totalLeads =
-            await Lead.countDocuments(filter);
+        const totalLeads = await Lead.countDocuments(filter);
 
         res.status(200).json({
             currentPage: pageNumber,
-
-            totalPages: Math.ceil(
-                totalLeads / limit
-            ),
-
+            totalPages: Math.ceil(totalLeads / limit),
             totalLeads,
-
             count: leads.length,
-
             leads,
         });
-    } catch (error) {
-        console.log(error);
-
-        res.status(500).json({
-            message: "Server error",
-        });
     }
-};
+);
 
-export const getLeadById = async (
-    req: AuthRequest,
-    res: Response
-) => {
-    try {
+export const getLeadById = asyncHandler(
+    async (req: AuthRequest, res: Response) => {
         const id = req.params.id as string;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({
-                message: "Invalid lead ID",
-            });
+            res.status(400);
+            throw new Error("Invalid lead ID");
         }
-        const lead = await Lead.findById(
-            id
-        ).populate(
+
+        const lead = await Lead.findById(id).populate(
             "createdBy",
             "name email role"
         );
 
         if (!lead) {
-            return res.status(404).json({
-                message: "Lead not found",
-            });
+            res.status(404);
+            throw new Error("Lead not found");
         }
 
-        res.status(200).json({
-            lead,
-        });
-    } catch (error) {
-        console.log(error);
-
-        res.status(500).json({
-            message: "Server error",
-        });
+        res.status(200).json({ lead });
     }
-};
+);
 
-export const updateLead = async (
-    req: AuthRequest,
-    res: Response
-) => {
-    try {
+export const updateLead = asyncHandler(
+    async (req: AuthRequest, res: Response) => {
         const id = req.params.id as string;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({
-                message: "Invalid lead ID",
-            });
+            res.status(400);
+            throw new Error("Invalid lead ID");
         }
 
-        const { name, email, status } =
-            req.body;
+        const { name, email, status } = req.body;
+        const source = req.body.source?.toLowerCase();
 
-        const source =
-            req.body.source?.toLowerCase();
-
-        const lead = await Lead.findById(
-            id
-        );
+        const lead = await Lead.findById(id);
 
         if (!lead) {
-            return res.status(404).json({
-                message: "Lead not found",
-            });
+            res.status(404);
+            throw new Error("Lead not found");
         }
 
         lead.name = name || lead.name;
-
         lead.email = email || lead.email;
-
         lead.status = status || lead.status;
-
         lead.source = source || lead.source;
 
         const updatedLead = await lead.save();
@@ -222,36 +139,23 @@ export const updateLead = async (
             message: "Lead updated successfully",
             lead: updatedLead,
         });
-    } catch (error) {
-        console.log(error);
-
-        res.status(500).json({
-            message: "Server error",
-        });
     }
-};
+);
 
-export const deleteLead = async (
-    req: AuthRequest,
-    res: Response
-) => {
-    try {
+export const deleteLead = asyncHandler(
+    async (req: AuthRequest, res: Response) => {
         const id = req.params.id as string;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({
-                message: "Invalid lead ID",
-            });
+            res.status(400);
+            throw new Error("Invalid lead ID");
         }
 
-        const lead = await Lead.findById(
-            id
-        );
+        const lead = await Lead.findById(id);
 
         if (!lead) {
-            return res.status(404).json({
-                message: "Lead not found",
-            });
+            res.status(404);
+            throw new Error("Lead not found");
         }
 
         await lead.deleteOne();
@@ -259,11 +163,5 @@ export const deleteLead = async (
         res.status(200).json({
             message: "Lead deleted successfully",
         });
-    } catch (error) {
-        console.log(error);
-
-        res.status(500).json({
-            message: "Server error",
-        });
     }
-};
+);

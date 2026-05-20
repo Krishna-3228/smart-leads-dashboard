@@ -14,25 +14,43 @@ const DashboardLayout = () => {
             : "text-gray-400 hover:bg-gray-800 hover:text-white"
         }`;
 
+    const handleLogout = () => {
+        try {
+            logout();
+            navigate("/login");
+            toast.success("Logged out successfully");
+        } catch (error) {
+            toast.error("Logout failed");
+            console.log(error);
+        }
+    };
+
     const SidebarContent = () => (
         <>
+            {/* Brand */}
             <div className="flex items-center justify-between mb-8 px-1">
-                <h1 className="text-xl font-bold text-white tracking-tight">
-                    GigFlow
-                </h1>
+                <div>
+                    <h1 className="text-xl font-bold text-white tracking-tight">GigFlow</h1>
+                    <p className="text-xs text-gray-500 mt-0.5">Smart Leads</p>
+                </div>
                 {/* Close button – mobile only */}
                 <button
                     onClick={() => setSidebarOpen(false)}
-                    className="md:hidden text-gray-400 hover:text-white transition-colors"
+                    className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-800 hover:text-white transition-colors"
                     aria-label="Close sidebar"
                 >
-                    ✕
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
                 </button>
             </div>
+
+            <p className="text-xs font-semibold text-gray-600 uppercase tracking-wider px-1 mb-2">Navigation</p>
 
             <nav className="flex flex-col gap-1">
                 <NavLink
                     to="/dashboard"
+                    end
                     className={navLinkClass}
                     onClick={() => setSidebarOpen(false)}
                 >
@@ -55,25 +73,16 @@ const DashboardLayout = () => {
             </nav>
 
             {/* User info at bottom */}
-            <div className="mt-auto pt-6 border-t border-gray-700">
+            <div className="mt-auto pt-6 border-t border-gray-700/60">
                 <div className="px-1 mb-3">
                     <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Signed in as</p>
-                    <p className="text-sm font-medium text-white truncate">{user?.name}</p>
-                    <span className="inline-block mt-1 text-xs px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-400 capitalize">
+                    <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
+                    <span className="inline-block mt-1.5 text-xs px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-400 capitalize border border-blue-600/20">
                         {user?.role}
                     </span>
                 </div>
                 <button
-                    onClick={() => {
-                        try {
-                            logout();
-                            navigate("/login");
-                            toast.success("Logout successful");
-                        } catch (error) {
-                            toast.error("Logout failed");
-                            console.log(error);
-                        }
-                    }}
+                    onClick={handleLogout}
                     className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-150"
                 >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -103,8 +112,7 @@ const DashboardLayout = () => {
 
             {/* ── Mobile sidebar (slide-in) ── */}
             <aside
-                className={`fixed inset-y-0 left-0 z-30 w-64 bg-gray-900 flex flex-col p-4 transform transition-transform duration-300 ease-in-out md:hidden ${sidebarOpen ? "translate-x-0" : "-translate-x-full"
-                    }`}
+                className={`fixed inset-y-0 left-0 z-30 w-64 bg-gray-900 flex flex-col p-4 transform transition-transform duration-300 ease-in-out md:hidden ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
                 <SidebarContent />
             </aside>
@@ -112,7 +120,7 @@ const DashboardLayout = () => {
             {/* ── Main content ── */}
             <main className="flex-1 flex flex-col overflow-hidden">
                 {/* Header */}
-                <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-5 flex items-center justify-between flex-shrink-0">
+                <header className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-3">
                         {/* Hamburger – mobile only */}
                         <button
@@ -120,20 +128,26 @@ const DashboardLayout = () => {
                             className="md:hidden p-1.5 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
                             aria-label="Open sidebar"
                         >
-                            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                             </svg>
                         </button>
-                        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 truncate">
-                            Smart Leads Dashboard
-                        </h2>
+                        <div>
+                            <h2 className="text-lg sm:text-xl font-bold text-gray-800 leading-tight">
+                                Smart Leads Dashboard
+                            </h2>
+                            <p className="text-xs text-gray-400 hidden sm:block">GigFlow – Lead Management</p>
+                        </div>
                     </div>
 
                     {/* Desktop logout in header */}
                     <button
-                        onClick={() => { logout(); navigate("/login"); }}
-                        className="hidden md:flex items-center gap-1.5 text-sm text-red-500 hover:text-red-600 font-medium transition-colors"
+                        onClick={handleLogout}
+                        className="hidden md:flex items-center gap-1.5 text-sm text-gray-500 hover:text-red-500 font-medium transition-colors px-3 py-1.5 rounded-lg hover:bg-red-50"
                     >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
                         Logout
                     </button>
                 </header>

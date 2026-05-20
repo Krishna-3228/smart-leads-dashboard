@@ -51,8 +51,9 @@ const EditLeadModal = ({ lead, onClose, onLeadUpdated }: Props) => {
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <h2 className="text-lg font-bold text-gray-900">Edit Lead</h2>
           <button
-            onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            onClick={() => { if (loading) return; onClose(); }}
+            disabled={loading}
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             aria-label="Close"
           >
             ✕

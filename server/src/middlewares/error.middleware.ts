@@ -4,17 +4,22 @@ import {
   NextFunction,
 } from "express";
 
-const errorHandler = (
+export const errorHandler = (
   err: any,
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  console.log(err);
+  console.error(err);
 
-  res.status(500).json({
-    message: err.message || "Server error",
+  const statusCode =
+    res.statusCode === 200
+      ? 500
+      : res.statusCode;
+
+  res.status(statusCode).json({
+    message:
+      err.message ||
+      "Server Error",
   });
 };
-
-export default errorHandler;

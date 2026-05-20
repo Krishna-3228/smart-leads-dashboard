@@ -1,14 +1,12 @@
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { CSVLink } from "react-csv";
-
 
 import CreateLeadModal from "../components/CreateLeadModal";
 import EditLeadModal from "../components/EditLeadModal";
 import ViewLeadModal from "../components/ViewLeadModel";
 import DeleteLeadModal from "../components/DeleteLeadModal";
 
-import { getLeads, deleteLead } from "../services/lead.service";
+import { getLeads } from "../services/lead.service";
 import { useAuth } from "../context/AuthContext";
 import type { Lead } from "../types/lead";
 
@@ -33,7 +31,6 @@ const LeadsPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [deleteLeadId, setDeleteLeadId] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
-
   const [viewLeadId, setViewLeadId] = useState<string | null>(null);
 
   const { user } = useAuth();
@@ -62,24 +59,15 @@ const LeadsPage = () => {
 
   useEffect(() => { fetchLeads(); }, [debouncedSearch, status, source, sort, page]);
 
-  const selectClass = "border border-gray-200 bg-white p-2.5 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
+  const selectClass = "w-full sm:w-auto border border-gray-200 bg-white p-2.5 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
-  const csvData = leads.map(
-    (lead) => ({
-      Name: lead.name,
-
-      Email: lead.email,
-
-      Status: lead.status,
-
-      Source: lead.source,
-
-      CreatedAt:
-        new Date(
-          lead.createdAt
-        ).toLocaleString(),
-    })
-  );
+  const csvData = leads.map((lead) => ({
+    Name: lead.name,
+    Email: lead.email,
+    Status: lead.status,
+    Source: lead.source,
+    CreatedAt: new Date(lead.createdAt).toLocaleString(),
+  }));
 
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
@@ -87,22 +75,27 @@ const LeadsPage = () => {
       {/* ── Page header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Leads</h1>
-        <CSVLink
-          data={csvData}
-          filename="leads.csv"
-          className="bg-green-600 text-white px-4 py-2 rounded-lg"
-        >
-          Export CSV
-        </CSVLink>
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-          </svg>
-          Add Lead
-        </button>
+        <div className="flex items-center gap-2 flex-wrap">
+          <CSVLink
+            data={csvData}
+            filename="leads.csv"
+            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export CSV
+          </CSVLink>
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Lead
+          </button>
+        </div>
       </div>
 
       {/* ── Filters ── */}
@@ -159,17 +152,17 @@ const LeadsPage = () => {
           </thead>
 
           {loading ? (
-            <>
+            <tbody>
               {[...Array(5)].map((_, i) => (
-                <tr key={i} className="border-b">
+                <tr key={i} className="border-b border-gray-100">
                   {[...Array(6)].map((_, j) => (
-                    <td key={j} className="p-4">
+                    <td key={j} className="px-4 py-3">
                       <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
                     </td>
                   ))}
                 </tr>
               ))}
-            </>
+            </tbody>
           ) : error ? (
             <tbody>
               <tr>
@@ -177,22 +170,19 @@ const LeadsPage = () => {
               </tr>
             </tbody>
           ) : leads.length === 0 ? (
-            <tr>
-              <td
-                colSpan={6}
-                className="text-center py-12"
-              >
-                <div className="flex flex-col items-center gap-2">
-                  <p className="text-lg font-medium text-gray-600">
-                    No leads found
-                  </p>
-
-                  <p className="text-sm text-gray-400">
-                    Try changing filters or create a new lead.
-                  </p>
-                </div>
-              </td>
-            </tr>
+            <tbody>
+              <tr>
+                <td colSpan={6} className="text-center py-12">
+                  <div className="flex flex-col items-center gap-2">
+                    <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <p className="text-base font-medium text-gray-600">No leads found</p>
+                    <p className="text-sm text-gray-400">Try changing filters or create a new lead.</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
           ) : (
             <tbody>
               {leads.map((lead) => (
@@ -211,10 +201,8 @@ const LeadsPage = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() =>
-                          setViewLeadId(lead._id)
-                        }
-                        className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm"
+                        onClick={() => setViewLeadId(lead._id)}
+                        className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-medium transition-colors duration-150"
                       >
                         View
                       </button>
@@ -226,9 +214,7 @@ const LeadsPage = () => {
                       </button>
                       {user?.role === "admin" && (
                         <button
-                          onClick={() =>
-                            setDeleteLeadId(lead._id)
-                          }
+                          onClick={() => setDeleteLeadId(lead._id)}
                           className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition-colors duration-150"
                         >
                           Delete
@@ -276,17 +262,13 @@ const LeadsPage = () => {
       {viewLeadId && (
         <ViewLeadModal
           leadId={viewLeadId}
-          onClose={() =>
-            setViewLeadId(null)
-          }
+          onClose={() => setViewLeadId(null)}
         />
       )}
       {deleteLeadId && (
         <DeleteLeadModal
           leadId={deleteLeadId}
-          onClose={() =>
-            setDeleteLeadId(null)
-          }
+          onClose={() => setDeleteLeadId(null)}
           onLeadDeleted={fetchLeads}
         />
       )}

@@ -1,100 +1,149 @@
 import { Request, Response } from "express";
+
+import asyncHandler from "express-async-handler";
+
 import bcrypt from "bcryptjs";
+
 import User from "../models/user.model";
+
 import generateToken from "../utils/generateToken";
 
-export const registerUser = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const { name, email, password } = req.body;
+export const registerUser =
+  asyncHandler(
+    async (
+      req: Request,
+      res: Response
+    ) => {
 
-        const existingUser = await User.findOne({ email });
+      const {
+        name,
+        email,
+        password,
+      } = req.body;
 
-        if (existingUser) {
-            return res.status(400).json({
-                message: "User already exists",
-            });
-        }
+      const normalizedEmail =
+        email.toLowerCase();
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = await User.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: "sales",
+      const existingUser =
+        await User.findOne({
+          email:
+            normalizedEmail,
         });
 
-        res.status(201).json({
-            message: "User registered",
-            token: generateToken(
-                user._id.toString(),
-                user.role
-            ),
-            user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({
-            message: "Server error",
-        });
-    }
-};
+      if (existingUser) {
+        res.status(400);
 
-export const loginUser = async (
-    req: Request,
-    res: Response
-) => {
-    try {
-        const { email, password } = req.body;
+        throw new Error(
+          "User already exists"
+        );
+      }
 
-        const user = await User.findOne({ email });
-
-        if (!user) {
-            return res.status(401).json({
-                message: "Invalid credentials",
-            });
-        }
-
-        const isMatch = await bcrypt.compare(
-            password,
-            user.password
+      const hashedPassword =
+        await bcrypt.hash(
+          password,
+          10
         );
 
-        if (!isMatch) {
-            return res.status(401).json({
-                message: "Invalid credentials",
-            });
-        }
+      const user =
+        await User.create({
+          name,
 
-        res.status(200).json({
-            message: "Login successful",
-            token: generateToken(
-                user._id.toString(),
-                user.role
-            ),
-            user: {
-                id: user._id,
+          email:
+            normalizedEmail,
 
-                name: user.name,
+          password:
+            hashedPassword,
 
-                email: user.email,
-
-                role: user.role,
-            },
+          role: "sales",
         });
-    } catch (error) {
-        console.log(error);
 
-        res.status(500).json({
-            message: "Server error",
-        });
+      res.status(201).json({
+        message:
+          "User registered",
+
+        token:
+          generateToken(
+            user._id.toString(),
+            user.role
+          ),
+
+        user: {
+          id: user._id,
+
+          name: user.name,
+
+          email:
+            user.email,
+
+          role: user.role,
+        },
+      });
     }
-};
+  );
+
+export const loginUser =
+  asyncHandler(
+    async (
+      req: Request,
+      res: Response
+    ) => {
+
+      const {
+        email,
+        password,
+      } = req.body;
+
+      const normalizedEmail =
+        email.toLowerCase();
+
+      const user =
+        await User.findOne({
+          email:
+            normalizedEmail,
+        });
+
+      if (!user) {
+        res.status(401);
+
+        throw new Error(
+          "Invalid credentials"
+        );
+      }
+
+      const isMatch =
+        await bcrypt.compare(
+          password,
+          user.password
+        );
+
+      if (!isMatch) {
+        res.status(401);
+
+        throw new Error(
+          "Invalid credentials"
+        );
+      }
+
+      res.status(200).json({
+        message:
+          "Login successful",
+
+        token:
+          generateToken(
+            user._id.toString(),
+            user.role
+          ),
+
+        user: {
+          id: user._id,
+
+          name: user.name,
+
+          email:
+            user.email,
+
+          role: user.role,
+        },
+      });
+    }
+  );
