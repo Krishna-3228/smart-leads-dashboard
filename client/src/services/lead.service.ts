@@ -34,6 +34,16 @@ export const createLead = async (
   return response.data;
 };
 
+export const getLeadById = async (
+  id: string
+) => {
+  const response = await api.get(
+    `/leads/${id}`
+  );
+
+  return response.data;
+};
+
 export const updateLead = async (
   id: string,
   data: {

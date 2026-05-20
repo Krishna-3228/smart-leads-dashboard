@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
-import { getLeads, deleteLead } from "../services/lead.service";
+import toast from "react-hot-toast";
+import { CSVLink } from "react-csv";
+
+
 import CreateLeadModal from "../components/CreateLeadModal";
 import EditLeadModal from "../components/EditLeadModal";
+import ViewLeadModal from "../components/ViewLeadModel";
+
+import { getLeads, deleteLead } from "../services/lead.service";
 import { useAuth } from "../context/AuthContext";
-import toast from "react-hot-toast";
 import type { Lead } from "../types/lead";
 
 const statusColors: Record<string, string> = {
@@ -26,6 +31,8 @@ const LeadsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+
+  const [viewLeadId, setViewLeadId] = useState<string | null>(null);
 
   const { user } = useAuth();
 
@@ -55,12 +62,36 @@ const LeadsPage = () => {
 
   const selectClass = "border border-gray-200 bg-white p-2.5 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
+  const csvData = leads.map(
+    (lead) => ({
+      Name: lead.name,
+
+      Email: lead.email,
+
+      Status: lead.status,
+
+      Source: lead.source,
+
+      CreatedAt:
+        new Date(
+          lead.createdAt
+        ).toLocaleString(),
+    })
+  );
+
   return (
     <div className="bg-white rounded-xl shadow-sm border border-gray-100">
 
       {/* ── Page header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
         <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Leads</h1>
+        <CSVLink
+          data={csvData}
+          filename="leads.csv"
+          className="bg-green-600 text-white px-4 py-2 rounded-lg"
+        >
+          Export CSV
+        </CSVLink>
         <button
           onClick={() => setShowModal(true)}
           className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm"
@@ -167,6 +198,14 @@ const LeadsPage = () => {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
+                        onClick={() =>
+                          setViewLeadId(lead._id)
+                        }
+                        className="bg-blue-500 text-white px-3 py-1 rounded-lg text-sm"
+                      >
+                        View
+                      </button>
+                      <button
                         onClick={() => setSelectedLead(lead)}
                         className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-medium transition-colors duration-150"
                       >
@@ -230,6 +269,14 @@ const LeadsPage = () => {
       )}
       {selectedLead && (
         <EditLeadModal lead={selectedLead} onClose={() => setSelectedLead(null)} onLeadUpdated={fetchLeads} />
+      )}
+      {viewLeadId && (
+        <ViewLeadModal
+          leadId={viewLeadId}
+          onClose={() =>
+            setViewLeadId(null)
+          }
+        />
       )}
     </div>
   );

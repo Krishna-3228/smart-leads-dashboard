@@ -5,4 +5,9 @@ export type Lead = {
   status: string;
   source: string;
   createdAt: string;
+  createdBy?: {
+    name: string;
+    email: string;
+    role: string;
+  };
 };
