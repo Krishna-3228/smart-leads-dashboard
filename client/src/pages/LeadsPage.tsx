@@ -59,7 +59,7 @@ const LeadsPage = () => {
 
   useEffect(() => { fetchLeads(); }, [debouncedSearch, status, source, sort, page]);
 
-  const selectClass = "w-full sm:w-auto border border-gray-200 bg-white p-2.5 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
+  const selectClass = "w-full sm:w-auto border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition dark:[color-scheme:dark]";
 
   const csvData = leads.map((lead) => ({
     Name: lead.name,
@@ -70,11 +70,11 @@ const LeadsPage = () => {
   }));
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-200">
 
       {/* ── Page header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Leads</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-gray-100">Leads</h1>
         <div className="flex items-center gap-2 flex-wrap">
           <CSVLink
             data={csvData}
@@ -99,7 +99,7 @@ const LeadsPage = () => {
       </div>
 
       {/* ── Filters ── */}
-      <div className="p-4 sm:p-6 border-b border-gray-100">
+      <div className="p-4 sm:p-6 border-b border-gray-100 dark:border-gray-700">
         <div className="flex flex-col sm:flex-row flex-wrap gap-3">
           {/* Search – full width on mobile */}
           <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-xs">
@@ -111,7 +111,7 @@ const LeadsPage = () => {
               placeholder="Search name or email…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full border border-gray-200 bg-white pl-9 pr-3 py-2.5 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              className="w-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 pl-9 pr-3 py-2.5 rounded-lg text-sm text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
 
@@ -141,23 +141,23 @@ const LeadsPage = () => {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-100">
-              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Source</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
-              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+            <tr className="bg-gray-50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Name</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Email</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Source</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Created</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
 
           {loading ? (
             <tbody>
               {[...Array(5)].map((_, i) => (
-                <tr key={i} className="border-b border-gray-100">
+                <tr key={i} className="border-b border-gray-100 dark:border-gray-700">
                   {[...Array(6)].map((_, j) => (
                     <td key={j} className="px-4 py-3">
-                      <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                     </td>
                   ))}
                 </tr>
@@ -177,8 +177,8 @@ const LeadsPage = () => {
                     <svg className="w-10 h-10 text-gray-300" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
-                    <p className="text-base font-medium text-gray-600">No leads found</p>
-                    <p className="text-sm text-gray-400">Try changing filters or create a new lead.</p>
+                    <p className="text-base font-medium text-gray-600 dark:text-gray-300">No leads found</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">Try changing filters or create a new lead.</p>
                   </div>
                 </td>
               </tr>
@@ -186,36 +186,36 @@ const LeadsPage = () => {
           ) : (
             <tbody>
               {leads.map((lead) => (
-                <tr key={lead._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-100">
-                  <td className="px-4 py-3 font-medium text-gray-800 whitespace-nowrap">{lead.name}</td>
-                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{lead.email}</td>
+                <tr key={lead._id} className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors duration-100">
+                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-100 whitespace-nowrap">{lead.name}</td>
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300 whitespace-nowrap">{lead.email}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${statusColors[lead.status] ?? "bg-gray-100 text-gray-600"}`}>
                       {lead.status}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-gray-600 capitalize whitespace-nowrap">{lead.source}</td>
-                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                  <td className="px-4 py-3 text-gray-600 dark:text-gray-300 capitalize whitespace-nowrap">{lead.source}</td>
+                  <td className="px-4 py-3 text-gray-500 dark:text-gray-400 whitespace-nowrap">
                     {new Date(lead.createdAt).toLocaleDateString()}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => setViewLeadId(lead._id)}
-                        className="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-xs font-medium transition-colors duration-150"
+                        className="px-3 py-1.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-800/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800/60 rounded-lg text-xs font-medium transition-colors duration-150"
                       >
                         View
                       </button>
                       <button
                         onClick={() => setSelectedLead(lead)}
-                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-medium transition-colors duration-150"
+                        className="px-3 py-1.5 bg-amber-50 dark:bg-amber-900/30 hover:bg-amber-100 dark:hover:bg-amber-800/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60 rounded-lg text-xs font-medium transition-colors duration-150"
                       >
                         Edit
                       </button>
                       {user?.role === "admin" && (
                         <button
                           onClick={() => setDeleteLeadId(lead._id)}
-                          className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition-colors duration-150"
+                          className="px-3 py-1.5 bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-800/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800/60 rounded-lg text-xs font-medium transition-colors duration-150"
                         >
                           Delete
                         </button>
@@ -230,23 +230,23 @@ const LeadsPage = () => {
       </div>
 
       {/* ── Pagination ── */}
-      <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-gray-100">
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-gray-100 dark:border-gray-700">
         <button
           onClick={() => setPage((p) => Math.max(p - 1, 1))}
           disabled={page === 1}
-          className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+          className="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
         >
           ← Previous
         </button>
 
-        <span className="text-sm text-gray-500">
-          Page <span className="font-semibold text-gray-700">{page}</span> of <span className="font-semibold text-gray-700">{totalPages}</span>
+        <span className="text-sm text-gray-500 dark:text-gray-400">
+          Page <span className="font-semibold text-gray-700 dark:text-gray-200">{page}</span> of <span className="font-semibold text-gray-700 dark:text-gray-200">{totalPages}</span>
         </span>
 
         <button
           onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
-          className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
+          className="px-4 py-2 text-sm bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
         >
           Next →
         </button>

@@ -47,9 +47,9 @@ const CustomTooltip = ({
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0];
   return (
-    <div className="bg-white border border-gray-100 shadow-lg rounded-lg px-3 py-2 text-sm">
-      <span className="font-semibold capitalize text-gray-800">{name}</span>
-      <span className="ml-2 text-gray-500">{value} leads</span>
+    <div className="bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-lg rounded-lg px-3 py-2 text-sm">
+      <span className="font-semibold capitalize text-gray-800 dark:text-gray-100">{name}</span>
+      <span className="ml-2 text-gray-500 dark:text-gray-400">{value} leads</span>
     </div>
   );
 };
@@ -203,7 +203,7 @@ const DashboardPage = () => {
   // ── Chart skeleton ──────────────────────────────────────────
   const ChartSkeleton = () => (
     <div className="flex items-center justify-center h-56">
-      <div className="w-40 h-40 rounded-full bg-gray-100 animate-pulse" />
+      <div className="w-40 h-40 rounded-full bg-gray-100 dark:bg-gray-700 animate-pulse" />
     </div>
   );
 
@@ -211,8 +211,8 @@ const DashboardPage = () => {
     <div className="space-y-8">
       {/* ── Header ── */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-1">Overview of your lead pipeline</p>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">Dashboard</h1>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Overview of your lead pipeline</p>
       </div>
 
       {/* ── Stat cards ── */}
@@ -221,19 +221,19 @@ const DashboardPage = () => {
           ? [...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 border-l-gray-200"
+                className="bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 border-l-gray-200 dark:border-l-gray-600"
               >
-                <div className="h-3 w-20 bg-gray-200 rounded animate-pulse mb-4" />
-                <div className="h-7 w-12 bg-gray-200 rounded animate-pulse" />
+                <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-4" />
+                <div className="h-7 w-12 bg-gray-200 dark:bg-gray-700 rounded animate-pulse" />
               </div>
             ))
           : cards.map((card) => (
               <div
                 key={card.title}
-                className={`bg-white p-5 rounded-xl shadow-sm border border-gray-100 border-l-4 ${card.accent} hover:shadow-md transition-shadow duration-200`}
+                className={`bg-white dark:bg-gray-800 p-5 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 border-l-4 ${card.accent} hover:shadow-md transition-shadow duration-200`}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                  <p className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     {card.title}
                   </p>
                   {card.icon}
@@ -249,16 +249,16 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {/* Pie chart – Status distribution */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <div className="mb-4">
-            <h2 className="text-base font-bold text-gray-800">Status Distribution</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Lead breakdown by current status</p>
+            <h2 className="text-base font-bold text-gray-800 dark:text-gray-100">Status Distribution</h2>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Lead breakdown by current status</p>
           </div>
 
           {loading ? (
             <ChartSkeleton />
           ) : pieData.length === 0 ? (
-            <div className="flex items-center justify-center h-56 text-gray-400 text-sm">
+            <div className="flex items-center justify-center h-56 text-gray-400 dark:text-gray-500 text-sm">
               No data available
             </div>
           ) : (
@@ -299,14 +299,14 @@ const DashboardPage = () => {
               {pieData.map((entry) => (
                 <span
                   key={entry.name}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 border border-gray-100"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
                 >
                   <span
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: STATUS_COLORS[entry.name] ?? PIE_FALLBACK }}
                   />
-                  <span className="capitalize text-gray-600">{entry.name}</span>
-                  <span className="font-bold text-gray-800">{entry.value}</span>
+                  <span className="capitalize text-gray-600 dark:text-gray-300">{entry.name}</span>
+                  <span className="font-bold text-gray-800 dark:text-gray-100">{entry.value}</span>
                 </span>
               ))}
             </div>
@@ -314,10 +314,10 @@ const DashboardPage = () => {
         </div>
 
         {/* Bar chart – Source distribution */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <div className="mb-4">
-            <h2 className="text-base font-bold text-gray-800">Source Distribution</h2>
-            <p className="text-xs text-gray-400 mt-0.5">Where your leads are coming from</p>
+            <h2 className="text-base font-bold text-gray-800 dark:text-gray-100">Source Distribution</h2>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">Where your leads are coming from</p>
           </div>
 
           {loading ? (
@@ -325,13 +325,13 @@ const DashboardPage = () => {
               {[60, 90, 45].map((h, i) => (
                 <div
                   key={i}
-                  className="flex-1 bg-gray-100 rounded-t-lg animate-pulse"
+                  className="flex-1 bg-gray-100 dark:bg-gray-700 rounded-t-lg animate-pulse"
                   style={{ height: `${h}%` }}
                 />
               ))}
             </div>
           ) : barData.length === 0 ? (
-            <div className="flex items-center justify-center h-56 text-gray-400 text-sm">
+            <div className="flex items-center justify-center h-56 text-gray-400 dark:text-gray-500 text-sm">
               No data available
             </div>
           ) : (
@@ -378,14 +378,14 @@ const DashboardPage = () => {
               {barData.map((entry) => (
                 <span
                   key={entry.name}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 border border-gray-100"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-50 dark:bg-gray-700 border border-gray-100 dark:border-gray-600"
                 >
                   <span
                     className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: SOURCE_COLORS[entry.name] ?? BAR_FALLBACK }}
                   />
-                  <span className="capitalize text-gray-600">{entry.name}</span>
-                  <span className="font-bold text-gray-800">{entry.value}</span>
+                  <span className="capitalize text-gray-600 dark:text-gray-300">{entry.name}</span>
+                  <span className="font-bold text-gray-800 dark:text-gray-100">{entry.value}</span>
                 </span>
               ))}
             </div>
