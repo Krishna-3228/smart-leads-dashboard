@@ -159,17 +159,17 @@ const LeadsPage = () => {
           </thead>
 
           {loading ? (
-            <tbody>
-              <tr>
-                <td colSpan={6} className="text-center py-12 text-gray-400 text-sm">
-                  <svg className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-500" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
-                  </svg>
-                  Loading leads…
-                </td>
-              </tr>
-            </tbody>
+            <>
+              {[...Array(5)].map((_, i) => (
+                <tr key={i} className="border-b">
+                  {[...Array(6)].map((_, j) => (
+                    <td key={j} className="p-4">
+                      <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </>
           ) : error ? (
             <tbody>
               <tr>
@@ -177,11 +177,22 @@ const LeadsPage = () => {
               </tr>
             </tbody>
           ) : leads.length === 0 ? (
-            <tbody>
-              <tr>
-                <td colSpan={6} className="text-center py-12 text-gray-400 text-sm">No leads found.</td>
-              </tr>
-            </tbody>
+            <tr>
+              <td
+                colSpan={6}
+                className="text-center py-12"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-lg font-medium text-gray-600">
+                    No leads found
+                  </p>
+
+                  <p className="text-sm text-gray-400">
+                    Try changing filters or create a new lead.
+                  </p>
+                </div>
+              </td>
+            </tr>
           ) : (
             <tbody>
               {leads.map((lead) => (

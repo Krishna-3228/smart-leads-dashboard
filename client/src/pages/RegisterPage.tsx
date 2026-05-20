@@ -32,6 +32,8 @@ const RegisterPage = () => {
   ) => {
     e.preventDefault();
 
+    if (loading) return;
+
     try {
       setLoading(true);
 
@@ -123,7 +125,7 @@ const RegisterPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white p-3 rounded-lg"
+            className="w-full bg-blue-600 text-white p-3 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading
               ? "Registering..."

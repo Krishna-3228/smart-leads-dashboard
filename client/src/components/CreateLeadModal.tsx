@@ -19,6 +19,7 @@ const CreateLeadModal = ({ onClose, onLeadCreated }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     try {
       setLoading(true);
       setError("");
@@ -40,7 +41,7 @@ const CreateLeadModal = ({ onClose, onLeadCreated }: Props) => {
   return (
     <div
       className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget && !loading) onClose(); }}
     >
       <div className="bg-white w-full sm:max-w-md sm:rounded-xl rounded-t-2xl shadow-xl overflow-hidden">
         {/* Header */}
@@ -103,15 +104,16 @@ const CreateLeadModal = ({ onClose, onLeadCreated }: Props) => {
           <div className="flex gap-3 pt-1">
             <button
               type="button"
-              onClick={onClose}
-              className="flex-1 py-3 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+              onClick={() => { if (loading) return; onClose(); }}
+              className="flex-1 py-3 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={loading}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 py-3 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-60 rounded-lg transition-colors"
+              className="flex-1 py-3 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
             >
               {loading ? "Creating…" : "Create Lead"}
             </button>
