@@ -32,110 +32,114 @@ export const createLead = async (
 };
 
 export const getLeads = async (
-  req: AuthRequest,
-  res: Response
+    req: AuthRequest,
+    res: Response
 ) => {
-  try {
-    const {
-      status,
-      source,
-      search,
-      sort,
-      page = "1",
-    } = req.query;
+    try {
+        const {
+            status,
+            source,
+            search,
+            sort,
+            page = "1",
+        } = req.query;
 
-    // Build filter object
-    const filter: any = {};
+        // Build filter object
+        const filter: any = {};
 
-    // Filter by status
-    if (status) {
-      filter.status = status;
+        // Filter by status
+        if (status) {
+            filter.status = status;
+        }
+
+        // Filter by source
+        if (source) {
+            filter.source = source;
+        }
+
+        // Search by name or email
+        if (search) {
+            filter.$or = [
+                {
+                    name: {
+                        $regex: search,
+                        $options: "i",
+                    },
+                },
+
+                {
+                    email: {
+                        $regex: search,
+                        $options: "i",
+                    },
+                },
+            ];
+        }
+
+        // Pagination
+        const limit = req.query.limit
+            ? parseInt(
+                req.query.limit as string
+            )
+            : 10;
+
+        const pageNumber = Math.max(
+            1,
+            parseInt(page as string) || 1
+        );
+
+        const skip =
+            (pageNumber - 1) * limit;
+
+        // Sorting
+        let sortOption = {};
+
+        if (sort === "latest") {
+            sortOption = {
+                createdAt: -1,
+            };
+        }
+
+        else if (sort === "oldest") {
+            sortOption = {
+                createdAt: 1,
+            };
+        }
+
+        // Fetch leads
+        const leads = await Lead.find(filter)
+            .sort(sortOption)
+            .skip(skip)
+            .limit(limit)
+            .populate(
+                "createdBy",
+                "name email role"
+            );
+
+        // Total count for pagination
+        const totalLeads =
+            await Lead.countDocuments(filter);
+
+        res.status(200).json({
+            currentPage: pageNumber,
+
+            totalPages: Math.ceil(
+                totalLeads / limit
+            ),
+
+            totalLeads,
+
+            count: leads.length,
+
+            leads,
+        });
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            message: "Server error",
+        });
     }
-
-    // Filter by source
-    if (source) {
-      filter.source = source;
-    }
-
-    // Search by name or email
-    if (search) {
-      filter.$or = [
-        {
-          name: {
-            $regex: search,
-            $options: "i",
-          },
-        },
-
-        {
-          email: {
-            $regex: search,
-            $options: "i",
-          },
-        },
-      ];
-    }
-
-    // Pagination
-    const limit = 10;
-
-    const pageNumber = Math.max(
-      1,
-      parseInt(page as string) || 1
-    );
-
-    const skip =
-      (pageNumber - 1) * limit;
-
-    // Sorting
-    let sortOption = {};
-
-    if (sort === "latest") {
-      sortOption = {
-        createdAt: -1,
-      };
-    }
-
-    else if (sort === "oldest") {
-      sortOption = {
-        createdAt: 1,
-      };
-    }
-
-    // Fetch leads
-    const leads = await Lead.find(filter)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
-      .populate(
-        "createdBy",
-        "name email role"
-      );
-
-    // Total count for pagination
-    const totalLeads =
-      await Lead.countDocuments(filter);
-
-    res.status(200).json({
-      currentPage: pageNumber,
-
-      totalPages: Math.ceil(
-        totalLeads / limit
-      ),
-
-      totalLeads,
-
-      count: leads.length,
-
-      leads,
-    });
-  } catch (error) {
-    console.log(error);
-
-    res.status(500).json({
-      message: "Server error",
-    });
-  }
 };
 
 export const getLeadById = async (
