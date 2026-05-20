@@ -6,6 +6,7 @@ import { CSVLink } from "react-csv";
 import CreateLeadModal from "../components/CreateLeadModal";
 import EditLeadModal from "../components/EditLeadModal";
 import ViewLeadModal from "../components/ViewLeadModel";
+import DeleteLeadModal from "../components/DeleteLeadModal";
 
 import { getLeads, deleteLead } from "../services/lead.service";
 import { useAuth } from "../context/AuthContext";
@@ -30,6 +31,7 @@ const LeadsPage = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [showModal, setShowModal] = useState(false);
+  const [deleteLeadId, setDeleteLeadId] = useState<string | null>(null);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const [viewLeadId, setViewLeadId] = useState<string | null>(null);
@@ -213,19 +215,9 @@ const LeadsPage = () => {
                       </button>
                       {user?.role === "admin" && (
                         <button
-                          onClick={async () => {
-                            if (!window.confirm("Delete this lead?")) return;
-                            try {
-                              await deleteLead(lead._id);
-                              toast.success("Lead deleted");
-                              fetchLeads();
-                            } catch (err: any) {
-                              toast.error(
-                                err.response?.data?.message ||
-                                "Failed to delete lead"
-                              );
-                            }
-                          }}
+                          onClick={() =>
+                            setDeleteLeadId(lead._id)
+                          }
                           className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition-colors duration-150"
                         >
                           Delete
@@ -276,6 +268,15 @@ const LeadsPage = () => {
           onClose={() =>
             setViewLeadId(null)
           }
+        />
+      )}
+      {deleteLeadId && (
+        <DeleteLeadModal
+          leadId={deleteLeadId}
+          onClose={() =>
+            setDeleteLeadId(null)
+          }
+          onLeadDeleted={fetchLeads}
         />
       )}
     </div>
