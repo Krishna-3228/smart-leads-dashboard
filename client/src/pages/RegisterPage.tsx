@@ -43,13 +43,16 @@ const RegisterPage = () => {
           password,
         });
 
-      login(data.token);
+      login(
+        data.token,
+        data.user
+      );
 
       navigate("/dashboard");
     } catch (error: any) {
       setError(
         error.response?.data?.message ||
-          "Registration failed"
+        "Registration failed"
       );
     } finally {
       setLoading(false);

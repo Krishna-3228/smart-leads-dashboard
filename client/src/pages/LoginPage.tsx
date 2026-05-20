@@ -41,13 +41,16 @@ const LoginPage = () => {
           password,
         });
 
-      login(data.token);
+      login(
+        data.token,
+        data.user
+      );
 
       navigate("/dashboard");
     } catch (error: any) {
       setError(
         error.response?.data?.message ||
-          "Login failed"
+        "Login failed"
       );
     } finally {
       setLoading(false);

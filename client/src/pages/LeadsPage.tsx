@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 
-import { getLeads } from "../services/lead.service";
+import { getLeads, deleteLead } from "../services/lead.service";
 
 import CreateLeadModal from "../components/CreateLeadModal";
+
+import { useAuth } from "../context/AuthContext";
+
+import EditLeadModal from "../components/EditLeadModal";
 
 type Lead = {
   _id: string;
@@ -34,6 +38,10 @@ const LeadsPage = () => {
   const [totalPages, setTotalPages] = useState(1);
 
   const [showModal, setShowModal] = useState(false);
+
+  const [selectedLead, setSelectedLead] = useState<any>(null);
+
+  const { user } = useAuth();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -80,8 +88,6 @@ const LeadsPage = () => {
     source,
     sort,
   ]);
-
-
 
 
   return (
@@ -171,6 +177,10 @@ const LeadsPage = () => {
             <th className="text-left p-3">
               Created At
             </th>
+
+            <th className="text-left p-3">
+              Actions
+            </th>
           </tr>
         </thead>
         {loading ? (
@@ -234,6 +244,40 @@ const LeadsPage = () => {
                     lead.createdAt
                   ).toLocaleDateString()}
                 </td>
+                <td className="p-3 flex gap-2">
+                  <button
+                    onClick={() =>
+                      setSelectedLead(lead)
+                    }
+                    className="bg-yellow-500 text-white px-3 py-1 rounded-lg text-sm"
+                  >
+                    Edit
+                  </button>
+
+                  {user?.role === "admin" && (
+                    <button
+                      onClick={async () => {
+                        const confirmed =
+                          window.confirm(
+                            "Delete this lead?"
+                          );
+
+                        if (!confirmed) return;
+
+                        try {
+                          await deleteLead(lead._id);
+
+                          fetchLeads();
+                        } catch (error) {
+                          console.log(error);
+                        }
+                      }}
+                      className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm"
+                    >
+                      Delete
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -277,6 +321,15 @@ const LeadsPage = () => {
             setShowModal(false)
           }
           onLeadCreated={fetchLeads}
+        />
+      )}
+      {selectedLead && (
+        <EditLeadModal
+          lead={selectedLead}
+          onClose={() =>
+            setSelectedLead(null)
+          }
+          onLeadUpdated={fetchLeads}
         />
       )}
     </div>
