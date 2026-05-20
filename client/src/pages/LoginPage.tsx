@@ -2,6 +2,8 @@ import { useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 
+import toast from "react-hot-toast";
+
 import {
   loginUser,
 } from "../services/auth.service";
@@ -46,9 +48,16 @@ const LoginPage = () => {
         data.user
       );
 
+      toast.success("Login successful");
+
       navigate("/dashboard");
     } catch (error: any) {
       setError(
+        error.response?.data?.message ||
+        "Login failed"
+      );
+
+      toast.error(
         error.response?.data?.message ||
         "Login failed"
       );

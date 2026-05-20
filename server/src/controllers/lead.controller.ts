@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Request, Response } from "express";
 import Lead from "../models/lead.model";
-import { AuthRequest } from "../middlewares/auth.middleware";
+import { AuthRequest } from "../types/auth.types";
 
 
 export const createLead = async (

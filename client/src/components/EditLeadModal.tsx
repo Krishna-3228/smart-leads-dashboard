@@ -1,74 +1,39 @@
 import { useState } from "react";
-
 import { updateLead } from "../services/lead.service";
-
-type Lead = {
-  _id: string;
-
-  name: string;
-
-  email: string;
-
-  status: string;
-
-  source: string;
-};
+import toast from "react-hot-toast";
+import type { Lead } from "../types/lead";
 
 type Props = {
   lead: Lead;
-
   onClose: () => void;
-
   onLeadUpdated: () => void;
 };
 
-const EditLeadModal = ({
-  lead,
-  onClose,
-  onLeadUpdated,
-}: Props) => {
-  const [name, setName] =
-    useState(lead.name);
+const inputClass = "w-full border border-gray-200 p-3 rounded-lg text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 transition placeholder-gray-400";
+const labelClass = "block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1.5";
 
-  const [email, setEmail] =
-    useState(lead.email);
+const EditLeadModal = ({ lead, onClose, onLeadUpdated }: Props) => {
+  const [name, setName] = useState(lead.name);
+  const [email, setEmail] = useState(lead.email);
+  const [status, setStatus] = useState(lead.status);
+  const [source, setSource] = useState(lead.source);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const [status, setStatus] =
-    useState(lead.status);
-
-  const [source, setSource] =
-    useState(lead.source);
-
-  const [loading, setLoading] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
-  const handleSubmit = async (
-    e: React.FormEvent
-  ) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     try {
       setLoading(true);
-
       setError("");
-
-      await updateLead(lead._id, {
-        name,
-        email,
-        status,
-        source,
-      });
-
+      await updateLead(lead._id, { name, email, status, source });
+      toast.success("Lead updated");
       onLeadUpdated();
-
       onClose();
-    } catch (error: any) {
-      setError(
-        error.response?.data?.message ||
-          "Failed to update lead"
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to update lead");
+      toast.error(
+        err.response?.data?.message ||
+        "Failed to update lead"
       );
     } finally {
       setLoading(false);
@@ -76,110 +41,96 @@ const EditLeadModal = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-lg">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            Edit Lead
-          </h2>
-
+    <div
+      className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 p-0 sm:p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-white w-full sm:max-w-md sm:rounded-xl rounded-t-2xl shadow-xl overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <h2 className="text-lg font-bold text-gray-900">Edit Lead</h2>
           <button
             onClick={onClose}
-            className="text-gray-500"
+            className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors"
+            aria-label="Close"
           >
             ✕
           </button>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
-          <input
-            type="text"
-            value={name}
-            onChange={(e) =>
-              setName(
-                e.target.value
-              )
-            }
-            className="w-full border p-3 rounded-lg"
-          />
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="px-5 py-5 space-y-4">
+          <div>
+            <label className={labelClass}>Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className={inputClass}
+              required
+            />
+          </div>
 
-          <input
-            type="email"
-            value={email}
-            onChange={(e) =>
-              setEmail(
-                e.target.value
-              )
-            }
-            className="w-full border p-3 rounded-lg"
-          />
+          <div>
+            <label className={labelClass}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className={inputClass}
+              required
+            />
+          </div>
 
-          <select
-            value={status}
-            onChange={(e) =>
-              setStatus(
-                e.target.value
-              )
-            }
-            className="w-full border p-3 rounded-lg"
-          >
-            <option value="new">
-              New
-            </option>
+          <div>
+            <label className={labelClass}>Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className={inputClass}
+            >
+              <option value="new">New</option>
+              <option value="contacted">Contacted</option>
+              <option value="qualified">Qualified</option>
+              <option value="lost">Lost</option>
+            </select>
+          </div>
 
-            <option value="contacted">
-              Contacted
-            </option>
-
-            <option value="qualified">
-              Qualified
-            </option>
-
-            <option value="lost">
-              Lost
-            </option>
-          </select>
-
-          <select
-            value={source}
-            onChange={(e) =>
-              setSource(
-                e.target.value
-              )
-            }
-            className="w-full border p-3 rounded-lg"
-          >
-            <option value="website">
-              Website
-            </option>
-
-            <option value="instagram">
-              Instagram
-            </option>
-
-            <option value="referral">
-              Referral
-            </option>
-          </select>
+          <div>
+            <label className={labelClass}>Source</label>
+            <select
+              value={source}
+              onChange={(e) => setSource(e.target.value)}
+              className={inputClass}
+            >
+              <option value="website">Website</option>
+              <option value="instagram">Instagram</option>
+              <option value="referral">Referral</option>
+            </select>
+          </div>
 
           {error && (
-            <p className="text-red-500 text-sm">
+            <p className="text-red-500 text-sm bg-red-50 border border-red-100 rounded-lg px-3 py-2">
               {error}
             </p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-yellow-500 text-white p-3 rounded-lg"
-          >
-            {loading
-              ? "Updating..."
-              : "Update Lead"}
-          </button>
+          <div className="flex gap-3 pt-1">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-3 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 py-3 text-sm font-medium text-white bg-amber-500 hover:bg-amber-600 disabled:opacity-60 rounded-lg transition-colors"
+            >
+              {loading ? "Saving…" : "Save Changes"}
+            </button>
+          </div>
         </form>
       </div>
     </div>

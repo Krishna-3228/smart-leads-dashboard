@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { registerUser } from "../services/auth.service";
 
 import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -48,9 +49,16 @@ const RegisterPage = () => {
         data.user
       );
 
+      toast.success("Registration successful");
+
       navigate("/dashboard");
     } catch (error: any) {
       setError(
+        error.response?.data?.message ||
+        "Registration failed"
+      );
+
+      toast.error(
         error.response?.data?.message ||
         "Registration failed"
       );

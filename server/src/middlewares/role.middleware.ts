@@ -1,8 +1,9 @@
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
+import type { AuthRequest } from "../types/auth.types";
 
 export const authorizeRoles = (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const user = (req as any).user;
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
+    const user = req.user;
 
     if (!user) {
       return res.status(401).json({

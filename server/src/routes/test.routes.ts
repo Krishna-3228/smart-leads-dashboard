@@ -1,7 +1,6 @@
 import express from "express";
-import protect, {
-  AuthRequest,
-} from "../middlewares/auth.middleware";
+import protect from "../middlewares/auth.middleware";
+import type { AuthRequest } from "../types/auth.types";
 
 const router = express.Router();
 

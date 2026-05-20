@@ -1,336 +1,235 @@
 import { useEffect, useState } from "react";
-
 import { getLeads, deleteLead } from "../services/lead.service";
-
 import CreateLeadModal from "../components/CreateLeadModal";
-
-import { useAuth } from "../context/AuthContext";
-
 import EditLeadModal from "../components/EditLeadModal";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+import type { Lead } from "../types/lead";
 
-type Lead = {
-  _id: string;
-
-  name: string;
-  email: string;
-  status: string;
-  source: string;
-
-  createdAt: string;
+const statusColors: Record<string, string> = {
+  new: "bg-blue-100 text-blue-700",
+  contacted: "bg-yellow-100 text-yellow-700",
+  qualified: "bg-green-100 text-green-700",
+  lost: "bg-red-100 text-red-700",
 };
 
 const LeadsPage = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState("");
-
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [source, setSource] = useState("");
   const [sort, setSort] = useState("latest");
-
   const [debouncedSearch, setDebouncedSearch] = useState("");
-
   const [page, setPage] = useState(1);
-
   const [totalPages, setTotalPages] = useState(1);
-
   const [showModal, setShowModal] = useState(false);
-
-  const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
 
   const { user } = useAuth();
 
+  // Debounce search
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(search);
-    }, 500);
-
+    const timer = setTimeout(() => setDebouncedSearch(search), 500);
     return () => clearTimeout(timer);
   }, [search]);
+
+  // Reset page on filter change
+  useEffect(() => { setPage(1); }, [debouncedSearch, status, source, sort]);
 
   const fetchLeads = async () => {
     try {
       setLoading(true);
-
-      const data = await getLeads({
-        search: debouncedSearch,
-        status,
-        source,
-        sort,
-        page,
-      });
-
+      const data = await getLeads({ search: debouncedSearch, status, source, sort, page });
       setLeads(data.leads);
       setTotalPages(data.totalPages);
-    } catch (error: any) {
-      setError(
-        error.response?.data?.message ||
-        "Failed to fetch leads"
-      );
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to fetch leads");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
+  useEffect(() => { fetchLeads(); }, [debouncedSearch, status, source, sort, page]);
 
-    fetchLeads();
-  }, [debouncedSearch, status, source, sort, page]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [
-    debouncedSearch,
-    status,
-    source,
-    sort,
-  ]);
-
+  const selectClass = "border border-gray-200 bg-white p-2.5 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition";
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">
-          Leads
-        </h1>
+    <div className="bg-white rounded-xl shadow-sm border border-gray-100">
 
+      {/* ── Page header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 sm:p-6 border-b border-gray-100">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Leads</h1>
         <button
-          onClick={() =>
-            setShowModal(true)
-          }
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+          onClick={() => setShowModal(true)}
+          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-4 py-2.5 rounded-lg text-sm font-medium transition-colors duration-150 shadow-sm"
         >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
           Add Lead
         </button>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search by name or email"
-          value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
-          className="border p-2 rounded-lg"
-        />
+      {/* ── Filters ── */}
+      <div className="p-4 sm:p-6 border-b border-gray-100">
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+          {/* Search – full width on mobile */}
+          <div className="relative flex-1 min-w-0 sm:min-w-[200px] sm:max-w-xs">
+            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
+            </svg>
+            <input
+              type="text"
+              placeholder="Search name or email…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full border border-gray-200 bg-white pl-9 pr-3 py-2.5 rounded-lg text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+            />
+          </div>
 
-        <select
-          value={status}
-          onChange={(e) =>
-            setStatus(e.target.value)
-          }
-          className="border p-2 rounded-lg"
-        >
-          <option value=""> All Status </option>
-          <option value="new"> New </option>
-          <option value="contacted"> Contacted </option>
-          <option value="qualified"> Qualified </option>
-          <option value="lost"> Lost </option>
-        </select>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} className={selectClass}>
+            <option value="">All Status</option>
+            <option value="new">New</option>
+            <option value="contacted">Contacted</option>
+            <option value="qualified">Qualified</option>
+            <option value="lost">Lost</option>
+          </select>
 
-        <select
-          value={source}
-          onChange={(e) =>
-            setSource(e.target.value)
-          }
-          className="border p-2 rounded-lg"
-        >
-          <option value=""> All Sources </option>
-          <option value="website"> Website </option>
-          <option value="instagram"> Instagram </option>
-          <option value="referral"> Referral </option>
-        </select>
+          <select value={source} onChange={(e) => setSource(e.target.value)} className={selectClass}>
+            <option value="">All Sources</option>
+            <option value="website">Website</option>
+            <option value="instagram">Instagram</option>
+            <option value="referral">Referral</option>
+          </select>
 
-        <select
-          value={sort}
-          onChange={(e) =>
-            setSort(e.target.value)
-          }
-          className="border p-2 rounded-lg"
-        >
-          <option value="latest"> Latest </option>
-          <option value="oldest"> Oldest </option>
-        </select>
+          <select value={sort} onChange={(e) => setSort(e.target.value)} className={selectClass}>
+            <option value="latest">Latest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+        </div>
       </div>
 
-
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="border-b">
-            <th className="text-left p-3"> Name </th>
-            <th className="text-left p-3">
-              Email
-            </th>
-
-            <th className="text-left p-3">
-              Status
-            </th>
-
-            <th className="text-left p-3">
-              Source
-            </th>
-
-            <th className="text-left p-3">
-              Created At
-            </th>
-
-            <th className="text-left p-3">
-              Actions
-            </th>
-          </tr>
-        </thead>
-        {loading ? (
-          <tbody>
-            <tr>
-              <td
-                colSpan={5}
-                className="text-center py-8 text-gray-500"
-              >
-                Loading leads...
-              </td>
+      {/* ── Table with horizontal scroll on mobile ── */}
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[640px] border-collapse text-sm">
+          <thead>
+            <tr className="bg-gray-50 border-b border-gray-100">
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Source</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Created</th>
+              <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
-          </tbody>
-        ) : error ? (
-          <tbody>
-            <tr>
-              <td
-                colSpan={5}
-                className="text-center py-8 text-red-500"
-              >
-                {error}
-              </td>
-            </tr>
-          </tbody>
-        ) : leads.length === 0 ? (
-          <tbody>
-            <tr>
-              <td
-                colSpan={5}
-                className="text-center py-8 text-gray-500"
-              >
-                No leads found.
-              </td>
-            </tr>
-          </tbody>
-        ) : (
-          <tbody>
-            {leads.map((lead) => (
-              <tr
-                key={lead._id}
-                className="border-b"
-              >
-                <td className="p-3">
-                  {lead.name}
-                </td>
+          </thead>
 
-                <td className="p-3">
-                  {lead.email}
-                </td>
-
-                <td className="p-3 capitalize">
-                  {lead.status}
-                </td>
-
-                <td className="p-3 capitalize">
-                  {lead.source}
-                </td>
-
-                <td className="p-3">
-                  {new Date(
-                    lead.createdAt
-                  ).toLocaleDateString()}
-                </td>
-                <td className="p-3 flex gap-2">
-                  <button
-                    onClick={() =>
-                      setSelectedLead(lead)
-                    }
-                    className="bg-yellow-500 text-white px-3 py-1 rounded-lg text-sm"
-                  >
-                    Edit
-                  </button>
-
-                  {user?.role === "admin" && (
-                    <button
-                      onClick={async () => {
-                        const confirmed =
-                          window.confirm(
-                            "Delete this lead?"
-                          );
-
-                        if (!confirmed) return;
-
-                        try {
-                          await deleteLead(lead._id);
-
-                          fetchLeads();
-                        } catch (error) {
-                          console.log(error);
-                        }
-                      }}
-                      className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm"
-                    >
-                      Delete
-                    </button>
-                  )}
+          {loading ? (
+            <tbody>
+              <tr>
+                <td colSpan={6} className="text-center py-12 text-gray-400 text-sm">
+                  <svg className="w-5 h-5 animate-spin mx-auto mb-2 text-blue-500" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                  </svg>
+                  Loading leads…
                 </td>
               </tr>
-            ))}
-          </tbody>
-        )}
-      </table>
-      <div className="flex justify-between items-center mt-6">
+            </tbody>
+          ) : error ? (
+            <tbody>
+              <tr>
+                <td colSpan={6} className="text-center py-12 text-red-500 text-sm">{error}</td>
+              </tr>
+            </tbody>
+          ) : leads.length === 0 ? (
+            <tbody>
+              <tr>
+                <td colSpan={6} className="text-center py-12 text-gray-400 text-sm">No leads found.</td>
+              </tr>
+            </tbody>
+          ) : (
+            <tbody>
+              {leads.map((lead) => (
+                <tr key={lead._id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors duration-100">
+                  <td className="px-4 py-3 font-medium text-gray-800 whitespace-nowrap">{lead.name}</td>
+                  <td className="px-4 py-3 text-gray-600 whitespace-nowrap">{lead.email}</td>
+                  <td className="px-4 py-3">
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${statusColors[lead.status] ?? "bg-gray-100 text-gray-600"}`}>
+                      {lead.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-gray-600 capitalize whitespace-nowrap">{lead.source}</td>
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
+                    {new Date(lead.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => setSelectedLead(lead)}
+                        className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 rounded-lg text-xs font-medium transition-colors duration-150"
+                      >
+                        Edit
+                      </button>
+                      {user?.role === "admin" && (
+                        <button
+                          onClick={async () => {
+                            if (!window.confirm("Delete this lead?")) return;
+                            try {
+                              await deleteLead(lead._id);
+                              toast.success("Lead deleted");
+                              fetchLeads();
+                            } catch (err: any) {
+                              toast.error(
+                                err.response?.data?.message ||
+                                "Failed to delete lead"
+                              );
+                            }
+                          }}
+                          className="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-xs font-medium transition-colors duration-150"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          )}
+        </table>
+      </div>
+
+      {/* ── Pagination ── */}
+      <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-t border-gray-100">
         <button
-          onClick={() =>
-            setPage((prev) =>
-              Math.max(prev - 1, 1)
-            )
-          }
+          onClick={() => setPage((p) => Math.max(p - 1, 1))}
           disabled={page === 1}
-          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+          className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
         >
-          Previous
+          ← Previous
         </button>
 
-        <p className="text-sm text-gray-600">
-          Page {page} of {totalPages}
-        </p>
+        <span className="text-sm text-gray-500">
+          Page <span className="font-semibold text-gray-700">{page}</span> of <span className="font-semibold text-gray-700">{totalPages}</span>
+        </span>
 
         <button
-          onClick={() =>
-            setPage((prev) =>
-              Math.min(
-                prev + 1,
-                totalPages
-              )
-            )
-          }
+          onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}
-          className="px-4 py-2 bg-gray-200 rounded-lg disabled:opacity-50"
+          className="px-4 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium"
         >
-          Next
+          Next →
         </button>
       </div>
+
+      {/* ── Modals ── */}
       {showModal && (
-        <CreateLeadModal
-          onClose={() =>
-            setShowModal(false)
-          }
-          onLeadCreated={fetchLeads}
-        />
+        <CreateLeadModal onClose={() => setShowModal(false)} onLeadCreated={fetchLeads} />
       )}
       {selectedLead && (
-        <EditLeadModal
-          lead={selectedLead}
-          onClose={() =>
-            setSelectedLead(null)
-          }
-          onLeadUpdated={fetchLeads}
-        />
+        <EditLeadModal lead={selectedLead} onClose={() => setSelectedLead(null)} onLeadUpdated={fetchLeads} />
       )}
     </div>
   );
