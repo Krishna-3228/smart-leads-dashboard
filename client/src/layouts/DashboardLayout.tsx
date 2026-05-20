@@ -12,8 +12,8 @@ const DashboardLayout = () => {
     const navigate = useNavigate();
 
     return (
-        <div className="min-h-screen flex">
-            <aside className="w-64 bg-gray-900 text-white p-4">
+        <div className="h-screen flex overflow-hidden">
+            <aside className="w-64 bg-gray-900 text-white p-4 flex-shrink-0">
                 <h1 className="text-2xl font-bold mb-8">
                     Smart Leads
                 </h1>
@@ -37,7 +37,7 @@ const DashboardLayout = () => {
                 </nav>
             </aside>
 
-            <main className="flex-1 p-6 bg-gray-100">
+            <main className="flex-1 p-6 bg-gray-100 overflow-y-auto">
                 <header className="bg-white shadow p-4 rounded-lg mb-6 flex justify-between items-center">
                     <h2 className="text-xl font-semibold">
                         GigFlow – Smart Leads Dashboard
