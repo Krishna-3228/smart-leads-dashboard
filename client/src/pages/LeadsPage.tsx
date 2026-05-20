@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 
 import { getLeads } from "../services/lead.service";
 
+import CreateLeadModal from "../components/CreateLeadModal";
+
 type Lead = {
   _id: string;
 
@@ -31,6 +33,8 @@ const LeadsPage = () => {
 
   const [totalPages, setTotalPages] = useState(1);
 
+  const [showModal, setShowModal] = useState(false);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -39,30 +43,31 @@ const LeadsPage = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
+  const fetchLeads = async () => {
+    try {
+      setLoading(true);
+
+      const data = await getLeads({
+        search: debouncedSearch,
+        status,
+        source,
+        sort,
+        page,
+      });
+
+      setLeads(data.leads);
+      setTotalPages(data.totalPages);
+    } catch (error: any) {
+      setError(
+        error.response?.data?.message ||
+        "Failed to fetch leads"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchLeads = async () => {
-      try {
-        setLoading(true);
-
-        const data = await getLeads({
-          search: debouncedSearch,
-          status,
-          source,
-          sort,
-          page,
-        });
-
-        setLeads(data.leads);
-        setTotalPages(data.totalPages);
-      } catch (error: any) {
-        setError(
-          error.response?.data?.message ||
-          "Failed to fetch leads"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
 
     fetchLeads();
   }, [debouncedSearch, status, source, sort, page]);
@@ -81,9 +86,20 @@ const LeadsPage = () => {
 
   return (
     <div className="bg-white p-6 rounded-lg shadow">
-      <h1 className="text-2xl font-bold mb-6">
-        Leads
-      </h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">
+          Leads
+        </h1>
+
+        <button
+          onClick={() =>
+            setShowModal(true)
+          }
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg"
+        >
+          Add Lead
+        </button>
+      </div>
 
       <div className="flex flex-wrap gap-4 mb-6">
         <input
@@ -255,6 +271,14 @@ const LeadsPage = () => {
           Next
         </button>
       </div>
+      {showModal && (
+        <CreateLeadModal
+          onClose={() =>
+            setShowModal(false)
+          }
+          onLeadCreated={fetchLeads}
+        />
+      )}
     </div>
   );
 };

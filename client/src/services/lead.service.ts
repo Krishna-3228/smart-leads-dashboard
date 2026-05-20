@@ -18,3 +18,18 @@ export const getLeads = async (
 
   return response.data;
 };
+
+export const createLead = async (
+  data: {
+    name: string;
+    email: string;
+    source: string;
+  }
+) => {
+  const response = await api.post(
+    "/leads",
+    data
+  );
+
+  return response.data;
+};
