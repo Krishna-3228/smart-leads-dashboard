@@ -348,7 +348,7 @@ const DashboardPage = () => {
                 />
                 <XAxis
                   dataKey="name"
-                  tick={{ fontSize: 12, fill: "#6b7280", textTransform: "capitalize" }}
+                  tick={{ fontSize: 12, fill: "#6b7280" }}
                   axisLine={false}
                   tickLine={false}
                   tickFormatter={(v) => v.charAt(0).toUpperCase() + v.slice(1)}
