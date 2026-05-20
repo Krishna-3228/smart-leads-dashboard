@@ -1,9 +1,16 @@
 import {
     NavLink,
     Outlet,
+    useNavigate,
 } from "react-router-dom";
 
+import { useAuth } from "../context/AuthContext";
+
 const DashboardLayout = () => {
+    const { logout } = useAuth();
+
+    const navigate = useNavigate();
+
     return (
         <div className="min-h-screen flex">
             <aside className="w-64 bg-gray-900 text-white p-4">
@@ -36,9 +43,15 @@ const DashboardLayout = () => {
                         GigFlow – Smart Leads Dashboard
                     </h2>
 
-                    <div className="text-sm text-gray-500">
-                        Welcome
-                    </div>
+                    <button
+                        onClick={() => {
+                            logout();
+                            navigate("/login");
+                        }}
+                        className="text-sm text-red-500 font-medium"
+                    >
+                        Logout
+                    </button>
                 </header>
 
                 <Outlet />
