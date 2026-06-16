@@ -121,6 +121,12 @@ This project was built as part of the Full Stack Internship Assignment.
 * Docker
 * Docker Compose
 
+## Testing
+
+* Jest
+* ts-jest
+* React Testing Library
+
 ---
 
 # Project Structure
@@ -199,6 +205,30 @@ Backend:
 
 ```txt
 http://localhost:5000
+```
+
+---
+
+# Running Tests
+
+Both frontend and backend packages have independent test suites using Jest.
+
+## Backend Tests
+
+To run backend tests (utilities, role & validation middlewares):
+
+```bash
+cd server
+npm test
+```
+
+## Frontend Tests
+
+To run frontend tests (React contexts & components):
+
+```bash
+cd client
+npm test
 ```
 
 ---
