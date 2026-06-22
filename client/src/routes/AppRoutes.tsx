@@ -12,6 +12,7 @@ import RegisterPage from "../pages/RegisterPage";
 import DashboardPage from "../pages/DashboardPage";
 import LeadsPage from "../pages/LeadsPage";
 import DashboardLayout from "../layouts/DashboardLayout";
+import NotFoundPage from "../pages/NotFoundPage";
 
 const AppRoutes = () => {
     return (
@@ -50,6 +51,11 @@ const AppRoutes = () => {
                         element={<LeadsPage />}
                     />
                 </Route>
+
+                <Route
+                    path="*"
+                    element={<NotFoundPage />}
+                />
             </Routes>
         </BrowserRouter>
     );
