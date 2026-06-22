@@ -71,8 +71,8 @@ const NotFoundPage = () => {
             </defs>
 
             {/* Pulsing Background Radar Ring */}
-            <circle cx="150" cy="150" r="110" className="pulse-ring" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" strokeOpacity="0.2" className="text-indigo-400 dark:text-indigo-600" />
-            <circle cx="150" cy="150" r="85" className="pulse-ring" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.3" className="text-indigo-400 dark:text-indigo-600" style={{ animationDelay: "1s" }} />
+            <circle cx="150" cy="150" r="110" stroke="currentColor" strokeWidth="1" strokeDasharray="4 4" strokeOpacity="0.2" className="pulse-ring text-indigo-400 dark:text-indigo-600" />
+            <circle cx="150" cy="150" r="85" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.3" className="pulse-ring text-indigo-400 dark:text-indigo-600" style={{ animationDelay: "1s" }} />
 
             {/* Orbiting Tiny Satellites */}
             <g className="orbit-line">
