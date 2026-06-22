@@ -1,0 +1,57 @@
+name: Deploy Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: server
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - run: npm test
+
+  deploy:
+    needs: test
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            cd ~/smart-leads-dashboard
+
+            git pull origin main
+
+            cd server
+
+            docker stop gigflow-api || true
+            docker rm gigflow-api || true
+
+            docker build -t gigflow-backend .
+
+            docker run -d \
+              --name gigflow-api \
+              --env-file .env \
+              -p 127.0.0.1:5001:5000 \
+              --restart unless-stopped \
+              gigflow-backend
