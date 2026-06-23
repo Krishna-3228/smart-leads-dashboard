@@ -5,6 +5,7 @@ import asyncHandler from "express-async-handler";
 import bcrypt from "bcryptjs";
 
 import User from "../models/user.model";
+import { AuthRequest } from "../types/auth.types";
 
 export const createUserByAdmin =
   asyncHandler(
@@ -67,6 +68,45 @@ export const createUserByAdmin =
 
           role: user.role,
         },
+      });
+    }
+  );
+
+export const getAllUsers =
+  asyncHandler(
+    async (
+      req: Request,
+      res: Response
+    ) => {
+      const users = await User.find({});
+      res.status(200).json(users);
+    }
+  );
+
+export const deleteUser =
+  asyncHandler(
+    async (
+      req: Request,
+      res: Response
+    ) => {
+      const userId = req.params.id;
+      const authReq = req as AuthRequest;
+
+      if (authReq.user?.id === userId) {
+        res.status(400);
+        throw new Error("You cannot delete your own account");
+      }
+
+      const user = await User.findById(userId);
+      if (!user) {
+        res.status(404);
+        throw new Error("User not found");
+      }
+
+      await User.deleteOne({ _id: userId });
+
+      res.status(200).json({
+        message: "User deleted successfully",
       });
     }
   );

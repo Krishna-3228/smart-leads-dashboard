@@ -11,6 +11,7 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import DashboardPage from "../pages/DashboardPage";
 import LeadsPage from "../pages/LeadsPage";
+import UsersPage from "../pages/UsersPage";
 import DashboardLayout from "../layouts/DashboardLayout";
 import NotFoundPage from "../pages/NotFoundPage";
 
@@ -49,6 +50,11 @@ const AppRoutes = () => {
                     <Route
                         path="/leads"
                         element={<LeadsPage />}
+                    />
+
+                    <Route
+                        path="/users"
+                        element={<UsersPage />}
                     />
                 </Route>
 

@@ -5,6 +5,7 @@ import { createUserByAdmin } from "../api/auth";
 type Props = {
   isOpen: boolean;
   onClose: () => void;
+  onUserCreated?: () => void;
 };
 
 const inputClass =
@@ -13,7 +14,7 @@ const inputClass =
 const labelClass =
   "block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-1.5";
 
-const CreateUserModal = ({ isOpen, onClose }: Props) => {
+const CreateUserModal = ({ isOpen, onClose, onUserCreated }: Props) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -28,6 +29,7 @@ const CreateUserModal = ({ isOpen, onClose }: Props) => {
       setLoading(true);
       await createUserByAdmin({ name, email, password, role });
       toast.success("User created successfully");
+      if (onUserCreated) onUserCreated();
       onClose();
     } catch (err: any) {
       toast.error(

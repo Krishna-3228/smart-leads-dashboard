@@ -12,8 +12,28 @@ export const createUserByAdmin =
 
     const response =
       await api.post(
-        "/users",
+        "/admin/users",
         data
+      );
+
+    return response.data;
+  };
+
+export const getUsersForAdmin =
+  async () => {
+    const response =
+      await api.get(
+        "/admin/users"
+      );
+
+    return response.data;
+  };
+
+export const deleteUserByAdmin =
+  async (id: string) => {
+    const response =
+      await api.delete(
+        `/admin/users/${id}`
       );
 
     return response.data;

@@ -3,14 +3,12 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { useTheme } from "../context/ThemeContext";
-import CreateUserModal from "../components/CreateUserModal";
 
 const DashboardLayout = () => {
     const { logout, user } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
-    const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
     const navLinkClass = ({ isActive }: { isActive: boolean }) =>
         `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${isActive
@@ -74,6 +72,19 @@ const DashboardLayout = () => {
                     </svg>
                     Leads
                 </NavLink>
+
+                {user?.role === "admin" && (
+                    <NavLink
+                        to="/users"
+                        className={navLinkClass}
+                        onClick={() => setSidebarOpen(false)}
+                    >
+                        <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        Users
+                    </NavLink>
+                )}
             </nav>
 
             {/* User info at bottom */}
@@ -85,18 +96,6 @@ const DashboardLayout = () => {
                         {user?.role}
                     </span>
                 </div>
-                {user?.role === "admin" && (
-                    <button
-                        onClick={() => setIsCreateUserOpen(true)}
-                        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm text-gray-400 hover:bg-gray-800 hover:text-white transition-all duration-150 mb-1"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
-                        Create User
-                    </button>
-                )}
-
                 {/* Theme toggle */}
                 <button
                     onClick={toggleTheme}
@@ -125,12 +124,6 @@ const DashboardLayout = () => {
                     Logout
                 </button>
             </div>
-            <CreateUserModal
-                isOpen={isCreateUserOpen}
-                onClose={() =>
-                    setIsCreateUserOpen(false)
-                }
-            />
         </>
     );
 
