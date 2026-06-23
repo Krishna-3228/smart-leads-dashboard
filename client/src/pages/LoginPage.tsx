@@ -32,6 +32,26 @@ const LoginPage = () => {
     }
   };
 
+  const handleQuickLogin = async (demoEmail: string, demoPassword: string) => {
+    if (loading) return;
+    setEmail(demoEmail);
+    setPassword(demoPassword);
+
+    try {
+      setLoading(true);
+      setError("");
+      const data = await loginUser({ email: demoEmail, password: demoPassword });
+      login(data.token, data.user);
+      toast.success(`Logged in as ${data.user.role === "admin" ? "Admin" : "Sales User"}`);
+      navigate("/dashboard");
+    } catch (error: any) {
+      setError(error.response?.data?.message || "Demo login failed");
+      toast.error(error.response?.data?.message || "Demo login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 px-4 transition-colors duration-200">
       <div className="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -89,6 +109,56 @@ const LoginPage = () => {
               {loading ? "Signing in…" : "Sign In"}
             </button>
           </form>
+
+          {/* Quick Demo Access */}
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center" aria-hidden="true">
+              <div className="w-full border-t border-gray-200 dark:border-gray-700"></div>
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-white dark:bg-gray-800 px-2 text-gray-500 dark:text-gray-400 font-semibold tracking-wider">
+                Quick Demo Access
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleQuickLogin("admin@test.com", "password123")}
+              className="group relative flex flex-col items-start p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 hover:bg-gradient-to-br hover:from-blue-50 hover:to-indigo-50 dark:bg-gray-900/30 dark:hover:from-blue-950/20 dark:hover:to-indigo-950/20 text-left transition-all duration-300 hover:shadow-md hover:border-blue-500/50 dark:hover:border-blue-500/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex items-center justify-between w-full mb-1">
+                <span className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Admin</span>
+                <span className="px-1.5 py-0.5 text-[9px] font-semibold bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200 rounded">Full Access</span>
+              </div>
+              <span className="text-xs font-medium text-gray-800 dark:text-gray-250 mt-1 truncate w-full">admin@test.com</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5 font-mono">password123</span>
+              
+              <span className="absolute bottom-3 right-3 text-xs opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 text-blue-600 dark:text-blue-400 font-bold">
+                →
+              </span>
+            </button>
+
+            <button
+              type="button"
+              disabled={loading}
+              onClick={() => handleQuickLogin("naira@test.com", "password123")}
+              className="group relative flex flex-col items-start p-3.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 hover:bg-gradient-to-br hover:from-purple-50 hover:to-pink-50 dark:bg-gray-900/30 dark:hover:from-purple-950/20 dark:hover:to-pink-950/20 text-left transition-all duration-300 hover:shadow-md hover:border-purple-500/50 dark:hover:border-purple-500/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div className="flex items-center justify-between w-full mb-1">
+                <span className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Sales User</span>
+                <span className="px-1.5 py-0.5 text-[9px] font-semibold bg-purple-100 dark:bg-purple-900/40 text-purple-800 dark:text-purple-200 rounded">Limited</span>
+              </div>
+              <span className="text-xs font-medium text-gray-800 dark:text-gray-250 mt-1 truncate w-full">naira@test.com</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 mt-0.5 font-mono">password123</span>
+
+              <span className="absolute bottom-3 right-3 text-xs opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300 text-purple-600 dark:text-purple-400 font-bold">
+                →
+              </span>
+            </button>
+          </div>
 
           <p className="text-center text-sm text-gray-500 dark:text-gray-400 mt-6">
             Don't have an account?{" "}
