@@ -56,7 +56,7 @@ export const createUserByAdmin =
         });
 
       const imageUrl = user.imageUrl
-        ? await getPresignedUrl(user.imageUrl)
+        ? (await getPresignedUrl(user.imageUrl)) ?? undefined
         : undefined;
 
       res.status(201).json({
@@ -90,9 +90,10 @@ export const getAllUsers =
       // Resolve pre-signed URLs for all users who have a profile image key
       const usersWithSignedUrls = await Promise.all(
         users.map(async (u) => {
-          const obj = u.toObject();
+          const obj = u.toObject() as any;
           if (obj.imageUrl) {
-            obj.imageUrl = await getPresignedUrl(obj.imageUrl);
+            // Returns null on failure (e.g. legacy URL or bad key) → strip it
+            obj.imageUrl = (await getPresignedUrl(obj.imageUrl)) ?? undefined;
           }
           return obj;
         })

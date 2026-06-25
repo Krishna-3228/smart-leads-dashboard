@@ -60,7 +60,7 @@ export const registerUser =
         });
 
       const imageUrl = user.imageUrl
-        ? await getPresignedUrl(user.imageUrl)
+        ? (await getPresignedUrl(user.imageUrl)) ?? undefined
         : undefined;
 
       res.status(201).json({
@@ -133,7 +133,7 @@ export const loginUser =
       }
 
       const imageUrl = user.imageUrl
-        ? await getPresignedUrl(user.imageUrl)
+        ? (await getPresignedUrl(user.imageUrl)) ?? undefined
         : undefined;
 
       res.status(200).json({
