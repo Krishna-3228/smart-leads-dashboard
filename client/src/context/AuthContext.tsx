@@ -17,6 +17,8 @@ type AuthContextType = {
     ) => void;
 
     logout: () => void;
+
+    updateUser: (user: User) => void;
 };
 
 const AuthContext = createContext<
@@ -83,6 +85,14 @@ export const AuthProvider = ({
         setUser(null);
     };
 
+    const updateUser = (updatedUser: User) => {
+        localStorage.setItem(
+            "user",
+            JSON.stringify(updatedUser)
+        );
+        setUser(updatedUser);
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -90,6 +100,7 @@ export const AuthProvider = ({
                 user,
                 login,
                 logout,
+                updateUser,
             }}
         >
             {children}

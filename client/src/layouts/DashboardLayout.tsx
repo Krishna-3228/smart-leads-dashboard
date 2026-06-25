@@ -1,14 +1,39 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 import { useTheme } from "../context/ThemeContext";
+import { uploadProfileImage } from "../services/auth.service";
 
 const DashboardLayout = () => {
-    const { logout, user } = useAuth();
+    const { logout, user, updateUser } = useAuth();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const { theme, toggleTheme } = useTheme();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploading, setUploading] = useState(false);
+
+    const handleAvatarClick = () => {
+        fileInputRef.current?.click();
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            setUploading(true);
+            const response = await uploadProfileImage(file);
+            const updatedUser = { ...user!, imageUrl: response.imageUrl };
+            updateUser(updatedUser);
+            toast.success("Profile image updated successfully");
+        } catch (error: any) {
+            toast.error(error.response?.data?.message || "Failed to upload image");
+            console.error(error);
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const navLinkClass = ({ isActive }: { isActive: boolean }) =>
         `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${isActive
@@ -89,12 +114,55 @@ const DashboardLayout = () => {
 
             {/* User info at bottom */}
             <div className="mt-auto pt-6 border-t border-gray-700/60">
-                <div className="px-1 mb-3">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Signed in as</p>
-                    <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-                    <span className="inline-block mt-1.5 text-xs px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-400 capitalize border border-blue-600/20">
-                        {user?.role}
-                    </span>
+                <div className="flex items-center gap-3 px-1 mb-3">
+                    {/* Interactive Profile Avatar */}
+                    <div 
+                        className="relative group cursor-pointer flex-shrink-0" 
+                        onClick={handleAvatarClick}
+                        title="Click to update profile image"
+                    >
+                        {user?.imageUrl ? (
+                            <img
+                                src={user.imageUrl}
+                                alt={user.name}
+                                className="w-11 h-11 rounded-full object-cover border-2 border-blue-600/50 group-hover:border-blue-500 transition-all duration-200"
+                            />
+                        ) : (
+                            <div className="w-11 h-11 rounded-full bg-blue-600/20 border-2 border-blue-600/30 group-hover:border-blue-600/50 flex items-center justify-center text-blue-400 font-semibold text-base transition-all duration-200">
+                                {user?.name?.charAt(0).toUpperCase() || "?"}
+                            </div>
+                        )}
+                        {/* Hover overlay with upload icon */}
+                        <div className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                            {uploading ? (
+                                <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                                </svg>
+                            ) : (
+                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+                                </svg>
+                            )}
+                        </div>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleFileChange}
+                            accept="image/*"
+                            className="hidden"
+                            disabled={uploading}
+                        />
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                        <p className="text-xs text-gray-500 uppercase tracking-wider">Signed in as</p>
+                        <p className="text-sm font-semibold text-white truncate" title={user?.name}>{user?.name}</p>
+                        <span className="inline-block mt-0.5 text-xs px-2 py-0.5 rounded-full bg-blue-600/20 text-blue-400 capitalize border border-blue-600/20">
+                            {user?.role}
+                        </span>
+                    </div>
                 </div>
                 {/* Theme toggle */}
                 <button

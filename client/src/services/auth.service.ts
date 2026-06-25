@@ -28,3 +28,14 @@ export const registerUser = async (
 
   return response.data;
 };
+
+export const uploadProfileImage = async (file: File) => {
+  const formData = new FormData();
+  formData.append("image", file);
+  const response = await api.post("/upload/profile-image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};

@@ -11,6 +11,7 @@ interface UserData {
   email: string;
   role: "admin" | "sales";
   password?: string;
+  imageUrl?: string;
   createdAt: string;
 }
 
@@ -160,7 +161,20 @@ const UsersPage = () => {
                   className="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/40 transition-colors duration-100"
                 >
                   <td className="px-6 py-4 font-medium text-gray-900 dark:text-gray-100 whitespace-nowrap">
-                    {u.name}
+                    <div className="flex items-center gap-3">
+                      {u.imageUrl ? (
+                        <img 
+                          src={u.imageUrl} 
+                          alt={u.name} 
+                          className="w-8 h-8 rounded-full object-cover border border-gray-200 dark:border-gray-700 shadow-sm"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center text-blue-500 font-semibold text-xs">
+                          {u.name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <span>{u.name}</span>
+                    </div>
                   </td>
                   <td className="px-6 py-4 text-gray-600 dark:text-gray-300 whitespace-nowrap">
                     {u.email}

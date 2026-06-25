@@ -8,6 +8,8 @@ import User from "../models/user.model";
 
 import generateToken from "../utils/generateToken";
 
+import { getPresignedUrl } from "../utils/s3.utils";
+
 export const registerUser =
   asyncHandler(
     async (
@@ -57,6 +59,10 @@ export const registerUser =
           role: "sales",
         });
 
+      const imageUrl = user.imageUrl
+        ? await getPresignedUrl(user.imageUrl)
+        : undefined;
+
       res.status(201).json({
         message:
           "User registered",
@@ -76,6 +82,8 @@ export const registerUser =
             user.email,
 
           role: user.role,
+
+          imageUrl,
         },
       });
     }
@@ -124,6 +132,10 @@ export const loginUser =
         );
       }
 
+      const imageUrl = user.imageUrl
+        ? await getPresignedUrl(user.imageUrl)
+        : undefined;
+
       res.status(200).json({
         message:
           "Login successful",
@@ -143,6 +155,8 @@ export const loginUser =
             user.email,
 
           role: user.role,
+
+          imageUrl,
         },
       });
     }

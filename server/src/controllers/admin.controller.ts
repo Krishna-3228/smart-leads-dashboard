@@ -6,6 +6,7 @@ import bcrypt from "bcryptjs";
 
 import User from "../models/user.model";
 import { AuthRequest } from "../types/auth.types";
+import { getPresignedUrl } from "../utils/s3.utils";
 
 export const createUserByAdmin =
   asyncHandler(
@@ -54,6 +55,10 @@ export const createUserByAdmin =
           role,
         });
 
+      const imageUrl = user.imageUrl
+        ? await getPresignedUrl(user.imageUrl)
+        : undefined;
+
       res.status(201).json({
         message:
           "User created successfully",
@@ -67,6 +72,8 @@ export const createUserByAdmin =
             user.email,
 
           role: user.role,
+
+          imageUrl,
         },
       });
     }
@@ -79,7 +86,19 @@ export const getAllUsers =
       res: Response
     ) => {
       const users = await User.find({});
-      res.status(200).json(users);
+
+      // Resolve pre-signed URLs for all users who have a profile image key
+      const usersWithSignedUrls = await Promise.all(
+        users.map(async (u) => {
+          const obj = u.toObject();
+          if (obj.imageUrl) {
+            obj.imageUrl = await getPresignedUrl(obj.imageUrl);
+          }
+          return obj;
+        })
+      );
+
+      res.status(200).json(usersWithSignedUrls);
     }
   );
 

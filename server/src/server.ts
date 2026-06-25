@@ -1,8 +1,10 @@
 import dotenv from "dotenv";
+// Force restart to load new environment variables from .env
+dotenv.config();
+
 import app from "./app";
 import connectDB from "./config/db";
 
-dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 
